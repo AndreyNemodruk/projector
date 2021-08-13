@@ -86,7 +86,7 @@ const database = {
 //   });
 // };
 
-const buyBookForUserPromise = (bookId, userId, callback) => {
+const buyBookForUser = (bookId, userId, callback) => {
   return new Promise((resolve, reject) => {
     database.getUser(userId, (err, user) => {
       if (err) {
@@ -126,31 +126,6 @@ const buyBookForUserPromise = (bookId, userId, callback) => {
 };
 
 // Вот код тестов, применимый для текущей реализации:
-
-// buyBookForUserPromise(1, 1, (err, message) => {
-//   console.log(err); // null
-//   console.log(message); // 'Success'
-// });
-
-// buyBookForUserPromise(1, 2, (err, message) => {
-//   console.log(err); // 'User already has book with id=1'
-//   console.log(message); // undefined
-// });
-
-// buyBookForUserPromise(3, 2, (err, message) => {
-//   console.log(err); // null
-//   console.log(message); // 'Success'
-// });
-
-// buyBookForUserPromise(5, 2, (err, message) => {
-//   console.log(err); // 'Book with id=5 not found'
-//   console.log(message); // undefined
-// });
-
-buyBookForUserPromise(1, 3, (err, message) => {
-  console.log(err); // 'User with id=3 not found'
-  console.log(message); // undefined
-});
 
 // buyBookForUser(1, 1, (err, message) => {
 //   console.log(err); // null
