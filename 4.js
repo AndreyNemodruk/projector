@@ -86,43 +86,29 @@ const database = {
 //   });
 // };
 
-const buyBookForUser = (bookId, userId, callback) => {
-  return new Promise((resolve, reject) => {
-    database.getUser(userId, (err, user) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(user);
-      }
+const buyBookForUser = async (bookId, userId, callback) => {
+  try {
+    const user = await new Promise((resolve, reject) => {
+      database.getUser(userId, (err, user) => {
+        err ? reject(err) : resolve(user);
+      });
     });
-  })
-    .then(
-      (user) =>
-        new Promise((resolve, reject) => {
-          database.getUsersBook(user.id, (err, userBooks) => {
-            if (err) {
-              reject(err);
-            } else {
-              userBooks.includes(bookId)
-                ? reject(`User already has book with id=${bookId}`)
-                : resolve(userBooks);
-            }
-          });
-        })
-    )
-    .then(
-      () =>
-        new Promise((resolve, reject) => {
-          database.buyBook(bookId, (err) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(callback(null, "Success"));
-            }
-          });
-        })
-    )
-    .catch((err) => callback(err));
+    await new Promise((resolve, reject) => {
+      database.getUsersBook(user.id, (err, userBooks) => {
+        err && reject(err);
+        userBooks.includes(bookId)
+          ? reject(`User already has book with id=${bookId}`)
+          : resolve(userBooks);
+      });
+    });
+    return await new Promise((resolve, reject) => {
+      database.buyBook(bookId, (err) => {
+        err ? reject(err) : resolve(callback(null, "Success"));
+      });
+    });
+  } catch (err) {
+    return callback(err);
+  }
 };
 
 // Вот код тестов, применимый для текущей реализации:
@@ -147,7 +133,32 @@ const buyBookForUser = (bookId, userId, callback) => {
 //   console.log(message); // undefined
 // });
 
-// buyBookForUser(1, 3, (err, message) => {
+buyBookForUser(1, 3, (err, message) => {
+  console.log(err); // 'User with id=3 not found'
+  console.log(message); // undefined
+});
+
+// buyBookForUserAsync(1, 1, (err, message) => {
+//   console.log(err); // null
+//   console.log(message); // 'Success'
+// });
+
+// buyBookForUserAsync(1, 2, (err, message) => {
+//   console.log(err); // 'User already has book with id=1'
+//   console.log(message); // undefined
+// });
+
+// buyBookForUserAsync(3, 2, (err, message) => {
+//   console.log(err); // null
+//   console.log(message); // 'Success'
+// });
+
+// buyBookForUserAsync(5, 2, (err, message) => {
+//   console.log(err); // 'Book with id=5 not found'
+//   console.log(message); // undefined
+// });
+
+// buyBookForUserAsync(1, 3, (err, message) => {
 //   console.log(err); // 'User with id=3 not found'
 //   console.log(message); // undefined
 // });
